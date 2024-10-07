@@ -3,8 +3,9 @@ import { locService } from './services/loc.service.js'
 import { mapService } from './services/map.service.js'
 
 window.onload = onInit
+// window.renderRainbowCanvas =renderRainbowCanvas
 window.gUserPos = null
-
+window.selectedColor = ''
 
 // To make things easier in this project structure 
 // functions that are called from DOM are defined on a global app object
@@ -21,12 +22,16 @@ window.app = {
     // onAddLoc,
     // onSetSortBys,
     onSetFilterBy,
+    applyThemeColor,
+    showChangeThemeModal,
+    hideChangeThemeModal
+    // renderRainbowCanvas
 }
 
 
 function onInit() {
     loadAndRenderLocs()
-
+    renderRainbowCanvas()
     mapService.initMap()
         .then(() => {
             // onPanToTokyo()
@@ -52,6 +57,7 @@ function renderLocs(locs) {
     var strHTML = locs.map(loc => {
         const className = (loc.id === selectedLocId) ? 'active' : ''
         return `
+        
         <li class="loc ${className}" data-id="${loc.id}">
             <h4>  
                 <span>${loc.name}</span>
@@ -149,29 +155,30 @@ function onSearchAddress(ev) {
 
 
 
-function onAddLoc(geo) {
+function onAddLoc(loc) {
     const dialog = document.querySelector('.location-dialog')
     const dialogTitle = document.querySelector('.dialog-title')
-
-    if (geo) {
+    console.log(loc);
+    if (loc) {
         dialogTitle.innerText = 'Update Location'
-        // console.log('updating Location:', geo)
-        document.querySelector('.loc-name').value = geo.name || 'reg'
-        document.querySelector('.loc-rate').value = geo.rate || 'rg'
+        // console.log('updating Location:', loc)
+        document.querySelector('.loc-name').value = loc.name || ''
+        document.querySelector('.loc-rate').value = loc.rate || ''
 
-        dialog.dataset.geo = JSON.stringify(geo)
+
+        dialog.dataset.loc = JSON.stringify(loc)
     } else {
         dialogTitle.textContent = 'add Location'
         document.querySelector('.loc-name').value = ''
         document.querySelector('.loc-rate').value = ''
 
-        delete dialog.dataset.geo
+        delete dialog.dataset.loc
     }
     //* Open the dialog with the modal
     dialog.showModal()
 }
 
-function onSubmitLocation(event) {
+function onSubmitLocation(event,geo) {
     event.preventDefault()
     // 'Loc name', geo.address || 'Just a place'
 
@@ -180,7 +187,8 @@ function onSubmitLocation(event) {
     const locRate = +document.querySelector('.loc-rate').value
 
     // if (isNaN(locRate) || locRate < 1 || locRate > 5)  return
-       
+    console.log(locName);
+
 
 
     //* i could do get randomIt but more code
@@ -196,7 +204,9 @@ function onSubmitLocation(event) {
             lng: +getRandomLng(),
             zoom: 12
         }
-    }
+    } 
+    console.log(loc)
+    
 
     locService.save(loc)
         .then(() => {
@@ -204,8 +214,8 @@ function onSubmitLocation(event) {
             loadAndRenderLocs()
 
             //* Update the locations
-            // document.querySelector('.loc-name').innerText = locName
-            // document.querySelector('.loc-rate').innerText = `${'★'.repeat(locRate)} (${locRate} stars)`
+            document.querySelector('.loc-name').innerText = locName
+            document.querySelector('.loc-rate').innerText = `${'★'.repeat(locRate)} (${locRate} stars)`
         })
         .catch(err => {
             console.error('OOPs:', err)
@@ -330,11 +340,15 @@ function onShareLoc() {
 function flashMsg(msg) {
     const el = document.querySelector('.user-msg')
     el.innerText = msg
+    el.style.display = 'bloke'
+
     el.classList.add('open')
     setTimeout(() => {
+        el.style.display = 'none'
         el.classList.remove('open')
     }, 3000)
 }
+
 
 function getLocIdFromQueryParams() {
     const queryParams = new URLSearchParams(window.location.search)
@@ -435,3 +449,55 @@ function cleanStats(stats) {
     return cleanedStats
 }
 
+
+function renderRainbowCanvas() {
+    const canvas = document.getElementById('colorPickerCanvas')
+    const ctx = canvas.getContext('2d')
+    const centerX = canvas.width / 2
+    const centerY = canvas.height / 2
+    const radius = Math.min(canvas.width, canvas.height) / 2
+
+    //* Create a radial gradient from center
+    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius)
+
+    //* Add smooth rainbow colors (radial)
+    gradient.addColorStop(0, 'red')
+    gradient.addColorStop(0.15, 'darkorange')
+    gradient.addColorStop(0.3, 'yellow')
+    gradient.addColorStop(0.45, 'green')
+    gradient.addColorStop(0.6, 'cyan')
+    gradient.addColorStop(0.75, 'blue')
+    gradient.addColorStop(0.9, 'indigo')
+    gradient.addColorStop(1, 'violet')
+
+    //* Fill canvas with radial rainbow gradient
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    //* Event listener to capture clicked color
+    canvas.addEventListener('click', (event) => {
+        const x = event.offsetX
+        const y = event.offsetY
+        const imageData = ctx.getImageData(x, y, 1, 1).data
+        selectedColor = `rgb(${imageData[0]}, ${imageData[1]}, ${imageData[2]})`
+        console.log('Selected color:', selectedColor)
+    })
+}
+
+
+function applyThemeColor() {
+    document.body.style.backgroundColor = selectedColor
+    
+    hideChangeThemeModal()
+}
+
+function hideChangeThemeModal() {
+    document.getElementById('changeThemeModal').classList.remove('active')
+    document.querySelector('.overlay').classList.remove('active')
+
+}
+
+function showChangeThemeModal() {
+    document.getElementById('changeThemeModal').classList.add('active')
+    document.querySelector('.overlay').classList.add('active')
+}

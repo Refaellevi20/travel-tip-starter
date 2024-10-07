@@ -12,7 +12,7 @@
     <header>
         <h1>TravelTip</h1>
         <section class="selected-loc">
-            <h2>Location: <span class="loc-name"></span> <span class="loc-rate"></span></h2>
+            <!-- <h2>Location: <span class="loc-name"></span> <span class="loc-rate"></span></h2> -->
             <h4 class="loc-address"></h4>
             <h4 class="loc-distance"></h4> 
             <button onclick="app.onCopyLoc()">Copy location</button>
@@ -89,8 +89,26 @@
             </section>
         </div>
     </main>
+
+
+
     <pre class="debug" hidden></pre>
     <div class="user-msg"></div>
+
+
+    <div class="overlay"></div>
+
+    <div id="changeThemeModal" class="modal">
+        <p>Select a background color:</p>
+        <canvas id="colorPickerCanvas" width="250" height="250"></canvas>
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+            <button class="btn-no-clean" onclick="app.applyThemeColor()">OK</button>
+            <button class="btn-clean" onclick="app.hideChangeThemeModal()">Cancel</button>
+        </div>
+    </div>
+    <button class="change-theme-button" onclick="app.showChangeThemeModal()">Change Theme</button>
+
+
     <script type="module" src="js/app.controller.js"></script>
 </body>
 
