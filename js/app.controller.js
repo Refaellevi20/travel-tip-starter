@@ -3,6 +3,8 @@ import { locService } from './services/loc.service.js'
 import { mapService } from './services/map.service.js'
 
 window.onload = onInit
+window.gUserPos = null
+
 
 // To make things easier in this project structure 
 // functions that are called from DOM are defined on a global app object
@@ -15,8 +17,10 @@ window.app = {
     onCopyLoc,
     onShareLoc,
     onSetSortBy,
+    // onSetSortBys,
     onSetFilterBy,
 }
+
 
 function onInit() {
     loadAndRenderLocs()
@@ -34,7 +38,15 @@ function onInit() {
 
 function renderLocs(locs) {
     const selectedLocId = getLocIdFromQueryParams()
-    // console.log('locs:', locs)
+
+    if (gUserPos) {
+        locs = locs.map(loc => {
+            const locPos = { lat: loc.geo.lat, lng: loc.geo.lng }
+            loc.distance = utilService.getDistance(gUserPos, locPos)
+            return loc
+        })
+    }
+
     var strHTML = locs.map(loc => {
         const className = (loc.id === selectedLocId) ? 'active' : ''
         return `
@@ -45,14 +57,13 @@ function renderLocs(locs) {
             </h4>
             <p class="muted">
                 Created: ${utilService.elapsedTime(loc.createdAt)}
-                ${(loc.createdAt !== loc.updatedAt) ?
-                ` | Updated: ${utilService.elapsedTime(loc.updatedAt)}`
-                : ''}
+                ${(loc.createdAt !== loc.updatedAt) ? ` | Updated: ${utilService.elapsedTime(loc.updatedAt)}` : ''}           
+                ${loc.distance ? ` | Distance: ${loc.distance.toFixed(3)} km` : ''}
             </p>
             <div class="loc-btns">     
-               <button title="Delete" onclick="app.onRemoveLoc('${loc.id}')">🗑️</button>
-               <button title="Edit" onclick="app.onUpdateLoc('${loc.id}')">✏️</button>
-               <button title="Select" onclick="app.onSelectLoc('${loc.id}')">🗺️</button>
+                <button title="Delete" onclick="app.onRemoveLoc('${loc.id}')">🗑️</button>
+                <button title="Edit" onclick="app.onUpdateLoc('${loc.id}')">✏️</button>
+                <button title="Select" onclick="app.onSelectLoc('${loc.id}')">🗺️</button>
             </div>     
         </li>`}).join('')
 
@@ -63,10 +74,14 @@ function renderLocs(locs) {
 
     if (selectedLocId) {
         const selectedLoc = locs.find(loc => loc.id === selectedLocId)
-        displayLoc(selectedLoc)
+        displayLoc(selectedLoc) 
+
+        const locDistanceEl = document.querySelector('.loc-distance')
+        locDistanceEl.innerText = `Distance: ${selectedLoc.distance ? selectedLoc.distance.toFixed(2) + ' km' : 'km'}`
     }
     document.querySelector('.debug').innerText = JSON.stringify(locs, null, 2)
 }
+
 
 function onRemoveLoc(locId) {
     const userConfirmed = confirm('Are you sure you want to remove this location?')
@@ -88,18 +103,6 @@ function onRemoveLoc(locId) {
             flashMsg('Cannot remove location')
         })
 }
-
-// function removeLocation() {
-//     const userConfirmedRemove = confirm(`Are you sure you want to remove the location: ${location}?`)
-
-//     if (userConfirmedRemove) {
-//         console.log(`the location- ${location} has been remove`)
-//         flashMsg(`the location- ${location} has been remove`)
-//     } else {
-//         console.log(`the location- ${location} has been cencel`)
-//         flashMsg(`the location- ${location} has been cencel`)
-//     }
-// }
 
 function onSearchAddress(ev) {
     ev.preventDefault()
@@ -147,6 +150,7 @@ function loadAndRenderLocs() {
 function onPanToUserPos() {
     mapService.getUserPosition()
         .then(latLng => {
+            gUserPos = latLng
             mapService.panTo({ ...latLng, zoom: 15 })
             unDisplayLoc()
             loadAndRenderLocs()
@@ -264,6 +268,8 @@ function onSetSortBy() {
     loadAndRenderLocs()
 }
 
+
+
 function onSetFilterBy({ txt, minRate }) {
     const filterBy = locService.setFilterBy({ txt, minRate: +minRate })
     utilService.updateQueryParams(filterBy)
@@ -328,6 +334,4 @@ function cleanStats(stats) {
     }, [])
     return cleanedStats
 }
-
-
 

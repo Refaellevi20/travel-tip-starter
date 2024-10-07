@@ -15,7 +15,7 @@ import { storageService } from './async-storage.service.js'
 //     updatedAt: 1706562160181
 // }
 
-const PAGE_SIZE = 5
+// const PAGE_SIZE = 5
 const DB_KEY = 'locs'
 var gSortBy = { rate: -1 }
 var gFilterBy = { txt: '', minRate: 0 }
@@ -30,7 +30,9 @@ export const locService = {
     save,
     setFilterBy,
     setSortBy,
+    // sortLocs,
     getLocCountByRateMap
+
 }
 
 function query() {
@@ -38,22 +40,32 @@ function query() {
         .then(locs => {
             if (gFilterBy.txt) {
                 const regex = new RegExp(gFilterBy.txt, 'i')
-                locs = locs.filter(loc => regex.test(loc.name))
+                locs = locs.filter(loc => regex.test(loc.name) || (loc.geo && regex.test(loc.geo.address)))
             }
             if (gFilterBy.minRate) {
                 locs = locs.filter(loc => loc.rate >= gFilterBy.minRate)
             }
 
-            // No paging (unused)
-            if (gPageIdx !== undefined) {
-                const startIdx = gPageIdx * PAGE_SIZE
-                locs = locs.slice(startIdx, startIdx + PAGE_SIZE)
+            if (gUserPos) {
+                locs = locs.map(loc => {
+                    const locPos = { lat: loc.geo.lat, lng: loc.geo.lng }
+                    loc.distance =  utilService.getDistance(gUserPos, locPos)
+                    return loc
+                })
             }
 
             if (gSortBy.rate !== undefined) {
                 locs.sort((p1, p2) => (p1.rate - p2.rate) * gSortBy.rate)
             } else if (gSortBy.name !== undefined) {
                 locs.sort((p1, p2) => p1.name.localeCompare(p2.name) * gSortBy.name)
+            }
+
+            if (gSortBy.time !== undefined) {
+                locs.sort((p1, p2) => {
+                    const date1 = new Date(p1.time)
+                    const date2 = new Date(p2.time)
+                    return (date1 - date2) * gSortBy.time
+                })
             }
 
             return locs
@@ -101,6 +113,21 @@ function getLocCountByRateMap() {
 function setSortBy(sortBy = {}) {
     gSortBy = sortBy
 }
+
+// function sortLocs(locs) {
+//     const sortKey = Object.keys(gSortBy)[0] 
+//     const sortOrder = gSortBy[sortKey]
+
+//     locs.sort((a, b) => {
+//         if (sortKey === 'createdAt' || sortKey === 'updatedAt') {
+//             return (new Date(a[sortKey]) - new Date(b[sortKey])) * sortOrder
+//         } else {
+//             if (a[sortKey] < b[sortKey]) return -1 * sortOrder
+//             if (a[sortKey] > b[sortKey]) return 1 * sortOrder
+//             return 0
+//         }
+//     })
+// }
 
 function _createLocs() {
     const locs = utilService.loadFromStorage(DB_KEY)

@@ -14,6 +14,7 @@ const API_KEY = ''
 var gMap
 var gMarker
 
+
 function initMap(lat = 32.0749831, lng = 34.9120554) {
     return _connectGoogleApi()
         .then(() => {

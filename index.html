@@ -14,6 +14,7 @@
         <section class="selected-loc">
             <h2>Location: <span class="loc-name"></span> <span class="loc-rate"></span></h2>
             <h4 class="loc-address"></h4>
+            <h4 class="loc-distance"></h4> 
             <button onclick="app.onCopyLoc()">Copy location</button>
             <button onclick="app.onShareLoc()">Share location</button>
             <input name="loc-copier" />
@@ -46,6 +47,7 @@
                         <select class="sort-by" onchange="app.onSetSortBy()">
                             <option value="name">Name</option>
                             <option value="rate" selected>Rate</option>
+                            <option value="createdAt" selected>Time</option>
                         </select>
                         <label>
                             <input class="sort-desc" type="checkbox" oninput="app.onSetSortBy()" />
@@ -53,7 +55,8 @@
                         </label>
                     </p>
                 </section>
-                <h3>Locations</h3>
+                <h3 class="loc.distance">Locations</h3>
+                <!-- <span>updatedAt</span> -->
                 <ul class="loc-list"></ul>
                 <section class="loc-stats">
                     <h3>Statistics</h3>
