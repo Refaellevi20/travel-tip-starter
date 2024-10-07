@@ -121,10 +121,17 @@ function onAddLoc(geo) {
     const locName = prompt('Loc name', geo.address || 'Just a place')
     if (!locName) return
 
+    const getRandomLat = () => (Math.random() * (90.0 - (-90.0)) + (-90.0)).toFixed(7) 
+    const getRandomLng = () => (Math.random() * (180.0 - (-180.0)) + (-180.0)).toFixed(7)
     const loc = {
         name: locName,
         rate: +prompt(`Rate (1-5)`, '3'),
-        geo
+        geo: {
+            address: '',
+            lat: +getRandomLat(),
+            lng: +getRandomLng(),
+            zoom: 12
+        }
     }
     locService.save(loc)
         .then((savedLoc) => {
@@ -151,6 +158,8 @@ function onPanToUserPos() {
     mapService.getUserPosition()
         .then(latLng => {
             gUserPos = latLng
+            console.log(gUserPos)
+            
             mapService.panTo({ ...latLng, zoom: 15 })
             unDisplayLoc()
             loadAndRenderLocs()
@@ -160,6 +169,7 @@ function onPanToUserPos() {
             console.error('OOPs:', err)
             flashMsg('Cannot get your position')
         })
+        .finally(() => console.log('user position'))
 }
 
 

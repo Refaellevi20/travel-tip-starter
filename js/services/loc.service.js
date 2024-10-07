@@ -132,6 +132,7 @@ function setSortBy(sortBy = {}) {
 function _createLocs() {
     const locs = utilService.loadFromStorage(DB_KEY)
     if (!locs || !locs.length) {
+        // onPanToUserPos()
         _createDemoLocs()
     }
 }

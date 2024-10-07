@@ -117,3 +117,21 @@ function getDistance(latLng1, latLng2, unit = 'K') {
         return dist
     }
 }
+
+
+const words = [
+    "Ben", "Gurion", "Airport", "7015001", "Israel", 
+    "Main", "Street", "Second", "Avenue", "Third", 
+    "Boulevard", "Park", "Drive", "Hill", "Place", 
+    "Road", "Square", "Lane", "Court", "Way", "Village",    
+]
+
+function getRandomAddress() {
+    const wordCount = Math.floor(Math.random() * 12) + 1
+    let address = []
+    for (let i = 0; i < wordCount; i++) {
+        const randomIndex = Math.floor(Math.random() * words.length)
+        address.push(words[randomIndex])
+    }
+    return address.join(" ")
+}
