@@ -270,7 +270,6 @@ function onUpdateLoc(locId) {
                         console.error('OOPs:', err)
                         flashMsg('Cannot update location')
                     })
-
             }
         })
 }
