@@ -183,6 +183,7 @@ function onUpdateLoc(locId) {
                     .then(savedLoc => {
                         flashMsg(`Rate was set to: ${savedLoc.rate}`)
                         loadAndRenderLocs()
+                        renderLocStats()
                     })
                     .catch(err => {
                         console.error('OOPs:', err)
@@ -288,8 +289,12 @@ function onSetFilterBy({ txt, minRate }) {
 
 function renderLocStats() {
     locService.getLocCountByRateMap().then(stats => {
-        console.log('stats:', stats)
+        console.log('rate stats:', stats)
         handleStats(stats, 'loc-stats-rate')
+    })
+    locService.getLocCountByUpdateMap().then(stats => {
+        console.log('update stats:', stats)
+        handleStats(stats, 'loc-stats-update')
     })
 }
 
@@ -298,13 +303,14 @@ function renderLocStats() {
 function handleStats(stats, selector) {
     // stats = { low: 37, medium: 11, high: 100, total: 148 }
     // stats = { low: 5, medium: 5, high: 5, baba: 55, mama: 30, total: 100 }
-    const labels = cleanStats(stats)
+    // const rateLabels = cleanStats(stats)
+    const labels = Object.keys(stats).filter(label => label !== 'total')
     const colors = utilService.getColors()
 
     var sumPercent = 0
     var colorsStr = `${colors[0]} ${0}%, `
     labels.forEach((label, idx) => {
-        if (idx === labels.length - 1) return
+        // if (idx === rateLabels.length - 1) return
         const count = stats[label]
         const percent = Math.round((count / stats.total) * 100, 2)
         sumPercent += percent
@@ -322,7 +328,7 @@ function handleStats(stats, selector) {
     const style = `background-image: conic-gradient(${colorsStr})`
     elPie.style = style
 
-    const ledendHTML = labels.map((label, idx) => {
+    const rateLegendHTML = labels.map((label, idx) => {
         return `
                 <li>
                     <span class="pie-label" style="background-color:${colors[idx]}"></span>
@@ -332,7 +338,10 @@ function handleStats(stats, selector) {
     }).join('')
 
     const elLegend = document.querySelector(`.${selector} .legend`)
-    elLegend.innerHTML = ledendHTML
+    elLegend.innerHTML = rateLegendHTML
+
+
+    
 }
 
 function cleanStats(stats) {
