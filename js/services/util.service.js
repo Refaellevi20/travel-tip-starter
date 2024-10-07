@@ -8,7 +8,8 @@ export const utilService = {
     elapsedTime,
     getColors,
     updateQueryParams,
-    getDistance
+    getDistance,
+    getRandomAddress
 }
 
 function saveToStorage(key, value) {
