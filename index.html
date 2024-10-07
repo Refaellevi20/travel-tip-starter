@@ -27,6 +27,21 @@
         </form>
     </header>
     <main>
+
+        <dialog class="location-dialog">
+            <form method="dialog" onsubmit="app.onSubmitLocation(event)">
+                <h3 class="dialog-title">Add Location</h3>
+                <label for="locName">Location Name:</label>
+                <input type="text" id="locName" class="loc-name" required placeholder="Enter location name" />
+                
+                <label for="locRate">Rate (1-5):</label>
+                <input type="number" id="locRate" class="loc-rate" min="1" max="5" required placeholder="Rate" />
+                
+                <button type="submit">Submit</button>
+                <button type="button" onclick="document.querySelector('.location-dialog').close()">Cancel</button>
+            </form>
+        </dialog>
+
         <div class="map"></div>
         <div>
             <section class="locs-container">

@@ -17,6 +17,8 @@ window.app = {
     onCopyLoc,
     onShareLoc,
     onSetSortBy,
+    onSubmitLocation,
+    // onAddLoc,
     // onSetSortBys,
     onSetFilterBy,
 }
@@ -74,7 +76,7 @@ function renderLocs(locs) {
 
     if (selectedLocId) {
         const selectedLoc = locs.find(loc => loc.id === selectedLocId)
-        displayLoc(selectedLoc) 
+        displayLoc(selectedLoc)
 
         const locDistanceEl = document.querySelector('.loc-distance')
         locDistanceEl.innerText = `Distance: ${selectedLoc.distance ? selectedLoc.distance.toFixed(2) + ' km' : 'km'}`
@@ -85,7 +87,7 @@ function renderLocs(locs) {
 
 function onRemoveLoc(locId) {
     const userConfirmed = confirm('Are you sure you want to remove this location?')
-    
+
     if (!userConfirmed) {
         console.log(`the location ${locId} was canceled.`)
         flashMsg(`the location canceled`)
@@ -117,15 +119,77 @@ function onSearchAddress(ev) {
         })
 }
 
-function onAddLoc(geo) {
-    const locName = prompt('Loc name', geo.address || 'Just a place')
-    if (!locName) return
+// function onAddLoc(geo) {
+//     const locName = prompt('Loc name', geo.address || 'Just a place')
+//     if (!locName) return
 
-    const getRandomLat = () => (Math.random() * (90.0 - (-90.0)) + (-90.0)).toFixed(7) 
+//     const getRandomLat = () => (Math.random() * (90.0 - (-90.0)) + (-90.0)).toFixed(7) 
+//     const getRandomLng = () => (Math.random() * (180.0 - (-180.0)) + (-180.0)).toFixed(7)
+//     const loc = {
+//         name: locName,
+//         rate: +prompt(`Rate (1-5)`, '3'),
+//         geo: {
+//             address: '',
+//             lat: +getRandomLat(),
+//             lng: +getRandomLng(),
+//             zoom: 12
+//         }
+//     }
+//     locService.save(loc)
+//         .then((savedLoc) => {
+//             flashMsg(`Added Location (id: ${savedLoc.id})`)
+//             utilService.updateQueryParams({ locId: savedLoc.id })
+//             loadAndRenderLocs()
+//         })
+//         .catch(err => {
+//             console.error('OOPs:', err)
+//             flashMsg('Cannot add location')
+//         })
+// }
+
+
+
+function onAddLoc(geo) {
+    const dialog = document.querySelector('.location-dialog')
+    const dialogTitle = document.querySelector('.dialog-title')
+
+    if (geo) {
+        dialogTitle.innerText = 'Update Location'
+        // console.log('updating Location:', geo)
+        document.querySelector('.loc-name').value = geo.name || 'reg'
+        document.querySelector('.loc-rate').value = geo.rate || 'rg'
+
+        dialog.dataset.geo = JSON.stringify(geo)
+    } else {
+        dialogTitle.textContent = 'add Location'
+        document.querySelector('.loc-name').value = ''
+        document.querySelector('.loc-rate').value = ''
+
+        delete dialog.dataset.geo
+    }
+    //* Open the dialog with the modal
+    dialog.showModal()
+}
+
+function onSubmitLocation(event) {
+    event.preventDefault()
+    // 'Loc name', geo.address || 'Just a place'
+
+    const dialog = document.querySelector('.location-dialog')
+    const locName = document.querySelector('.loc-name').value
+    const locRate = +document.querySelector('.loc-rate').value
+
+    // if (isNaN(locRate) || locRate < 1 || locRate > 5)  return
+       
+
+
+    //* i could do get randomIt but more code
+    const getRandomLat = () => (Math.random() * (90.0 - (-90.0)) + (-90.0)).toFixed(7)
     const getRandomLng = () => (Math.random() * (180.0 - (-180.0)) + (-180.0)).toFixed(7)
+
     const loc = {
         name: locName,
-        rate: +prompt(`Rate (1-5)`, '3'),
+        rate: locRate,
         geo: {
             address: '',
             lat: +getRandomLat(),
@@ -133,17 +197,35 @@ function onAddLoc(geo) {
             zoom: 12
         }
     }
+
     locService.save(loc)
-        .then((savedLoc) => {
-            flashMsg(`Added Location (id: ${savedLoc.id})`)
-            utilService.updateQueryParams({ locId: savedLoc.id })
+        .then(() => {
+            flashMsg('Location added successfully')
             loadAndRenderLocs()
+
+            //* Update the locations
+            // document.querySelector('.loc-name').innerText = locName
+            // document.querySelector('.loc-rate').innerText = `${'★'.repeat(locRate)} (${locRate} stars)`
         })
         .catch(err => {
             console.error('OOPs:', err)
             flashMsg('Cannot add location')
         })
+
+    dialog.close()
+    console.log(loc)
 }
+
+// function onUpdateLoc(locId) {
+//     locService.getById(locId)
+//         .then(geo => {
+//             onAddLoc(geo)
+//         })
+//         .catch(err => {
+//             console.error('OOPs:', err)
+//             flashMsg('Cannot retrieve location for update')
+//         })
+// }
 
 function loadAndRenderLocs() {
     locService.query()
@@ -159,7 +241,7 @@ function onPanToUserPos() {
         .then(latLng => {
             gUserPos = latLng
             console.log(gUserPos)
-            
+
             mapService.panTo({ ...latLng, zoom: 15 })
             unDisplayLoc()
             loadAndRenderLocs()
