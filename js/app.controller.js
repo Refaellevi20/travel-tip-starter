@@ -19,8 +19,7 @@ window.app = {
     onShareLoc,
     onSetSortBy,
     onSubmitLocation,
-    // onAddLoc,
-    // onSetSortBys,
+    handleCancel,
     onSetFilterBy,
     applyThemeColor,
     showChangeThemeModal,
@@ -110,6 +109,13 @@ function onRemoveLoc(locId) {
             console.error('OOPs:', err)
             flashMsg('Cannot remove location')
         })
+}
+
+function handleCancel() {
+    const dialog = document.querySelector('.location-dialog')
+    if (dialog) {
+        dialog.close()
+    }
 }
 
 function onSearchAddress(ev) {
