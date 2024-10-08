@@ -199,7 +199,7 @@ function closeModal() {
     overlay.style.display = 'none'
 }
 
-function onSubmitLocation(event,geo) {
+function onSubmitLocation(event) {
     event.preventDefault()
     // 'Loc name', geo.address || 'Just a place'
 
@@ -518,12 +518,19 @@ function applyThemeColor() {
 }
 
 function hideChangeThemeModal() {
-    document.getElementById('changeThemeModal').classList.remove('active')
-    document.querySelector('.overlay').classList.remove('active')
+    const overlay = document.querySelector('.overlay')
+    const themeModal = document.getElementById('changeThemeModal')
 
+    // overlay.style.display = 'none' 
+    themeModal.classList.remove('active')
+    overlay.classList.remove('active')
 }
 
 function showChangeThemeModal() {
-    document.getElementById('changeThemeModal').classList.add('active')
-    document.querySelector('.overlay').classList.add('active')
+    const overlay = document.querySelector('.overlay');
+    const themeModal = document.getElementById('changeThemeModal')
+
+    themeModal.classList.add('active')
+    overlay.classList.add('active')
+
 }
