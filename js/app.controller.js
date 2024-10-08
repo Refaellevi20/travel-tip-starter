@@ -164,8 +164,6 @@ function onSearchAddress(ev) {
 //         })
 // }
 
-
-
 function onAddLoc(loc) {
     const dialog = document.querySelector('.location-dialog')
     const overlay = document.querySelector('.overlay')
@@ -275,9 +273,10 @@ function loadAndRenderLocs() {
 function onPanToUserPos() {
     mapService.getUserPosition()
         .then(latLng => {
-            gUserPos = latLng
+            // gUserPos = latLng
+            unDisplayLoc()
             console.log(gUserPos)
-
+            mapService.setUserPos(latLng)
             mapService.panTo({ ...latLng, zoom: 15 })
             unDisplayLoc()
             loadAndRenderLocs()
@@ -289,7 +288,6 @@ function onPanToUserPos() {
         })
         .finally(() => console.log('user position'))
 }
-
 
 function onUpdateLoc(locId) {
     locService.getById(locId)
