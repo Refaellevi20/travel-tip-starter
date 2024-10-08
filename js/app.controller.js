@@ -23,7 +23,8 @@ window.app = {
     onSetFilterBy,
     applyThemeColor,
     showChangeThemeModal,
-    hideChangeThemeModal
+    hideChangeThemeModal,
+    closeModal
     // renderRainbowCanvas
 }
 
@@ -113,8 +114,12 @@ function onRemoveLoc(locId) {
 
 function handleCancel() {
     const dialog = document.querySelector('.location-dialog')
+    const overlays = document.querySelector('.overlays')
+
     if (dialog) {
         dialog.close()
+        closeModal()
+         overlays.style.display = 'none'
     }
 }
 
@@ -163,6 +168,7 @@ function onSearchAddress(ev) {
 
 function onAddLoc(loc) {
     const dialog = document.querySelector('.location-dialog')
+    const overlay = document.querySelector('.overlay')
     const dialogTitle = document.querySelector('.dialog-title')
     console.log(loc);
     if (loc) {
@@ -182,6 +188,15 @@ function onAddLoc(loc) {
     }
     //* Open the dialog with the modal
     dialog.showModal()
+    overlay.style.display = 'block'
+}
+
+function closeModal() {
+    const dialog = document.querySelector('.location-dialog')
+    const overlay = document.querySelector('.overlay')
+
+    dialog.close() 
+    overlay.style.display = 'none'
 }
 
 function onSubmitLocation(event,geo) {
@@ -218,17 +233,22 @@ function onSubmitLocation(event,geo) {
         .then(() => {
             flashMsg('Location added successfully')
             loadAndRenderLocs()
+            utilService.updateQueryParams({ locId: savedLoc.id })
 
             //* Update the locations
             document.querySelector('.loc-name').innerText = locName
             document.querySelector('.loc-rate').innerText = `${'★'.repeat(locRate)} (${locRate} stars)`
+            // flashMsg('Another loctions just add')
+
         })
         .catch(err => {
             console.error('OOPs:', err)
             flashMsg('Cannot add location')
         })
-
+        closeModal()
     dialog.close()
+    overlay.style.display = 'none'
+
     console.log(loc)
 }
 

@@ -34,7 +34,7 @@ button {
     padding: 6px 10px;
     margin: 2px;
     cursor: pointer;
-    transition: background-color .5s;
+    transition: background-color 0.5s;
 }
 
 button:hover {
@@ -60,7 +60,7 @@ button:hover {
     height: 100%;
     background-color: rgba(53, 49, 49, 0.5);
     backdrop-filter: blur(8px);
-    z-index: 0;
+    z-index: 20;
 }
 
 .overlay.active {
@@ -76,7 +76,7 @@ button:hover {
     background-color: white;
     padding: 20px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    z-index: 1;
+    z-index: 30;
     border-radius: 8px;
 }
 
@@ -88,7 +88,7 @@ button:hover {
     position: fixed;
     right: 20px;
     bottom: 20px;
-    background-color: lightgray;
+    /* background-color: lightgray; */
     padding: 10px;
     border: none;
     cursor: pointer;
@@ -105,12 +105,13 @@ button:hover {
 }
 
 .btn-clean {
-    background-color: #ff4d4d;
+    background-color: #f12f22;
     color: white;
 }
 
 .btn-clean:hover {
-    background-color: #ff1a1a;
+    color: black;
+    background-color: #af1c11;
 }
 
 .btn-no-clean {
@@ -139,4 +140,6 @@ canvas:hover {
 
 #changeThemeModal.modal.active p {
     text-align: center;
+    color: #111;
 }
+

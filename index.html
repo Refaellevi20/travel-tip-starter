@@ -28,6 +28,8 @@
     </header>
     <main>
 
+        <div class="overlay" onclick="app.closeModal()"></div>
+
         <dialog class="location-dialog">
             <form method="dialog" onsubmit="app.onSubmitLocation(event)">
                 <h3 class="dialog-title">Add Location</h3>
@@ -38,7 +40,7 @@
                 <input type="number" id="locRate" class="loc-rate" min="1" max="5" required placeholder="Rate" />
                 
                 <button type="submit">Submit</button>
-                <button type="button" class="cancel-button" onclick="handleCancel()">Cancel</button>
+                <button type="button" class="cancel-button" onclick="app.handleCancel()">Cancel</button>
             </form>
         </dialog>
 
@@ -94,9 +96,6 @@
 
     <pre class="debug" hidden></pre>
     <div class="user-msg"></div>
-
-
-    <div class="overlay"></div>
 
     <div id="changeThemeModal" class="modal">
         <p>Select a background color:</p>
